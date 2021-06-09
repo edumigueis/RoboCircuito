@@ -6,6 +6,8 @@
 from controller import Robot, Motor, DistanceSensor, Camera
 import requests
 from PIL import Image
+import threading
+import time
 
 # cria a instancia do robo
 robot = Robot()
@@ -47,21 +49,25 @@ left_ir.enable(time_step)
 camera = robot.getDevice("camera")
 camera.enable(time_step)
 
+#thread que aciona o server para abrir uma instancia do 
+#chrome a cada dez segundos com uma nova foto
 def sendImg():
-    img = camera.getImage()
-    camera.saveImage("photo.png", 720)
-    #rawImg = Image.frombytes('RGBA', (camera.getWidth(), camera.getHeight()), img)
-    #image = Image.open("photo.jpg")
-    #print(rawImg)
-    msg = str(img)
-    myObj = {'img': msg}
-    requests.post('http://localhost:5000/api/img', json = myObj)
-    return
+    while 1 == 1:
+        time.sleep(10)
+        img = camera.getImage()
+        camera.saveImage("photo.png", 100)
+        requests.post('http://localhost:5000/api/img')
 
+    
+counter = 0
 # Main loop:
 # - efetua os passos da simulacao ate que o Webots pare o controller
 while robot.step(time_step) != -1:
-    sendImg()
+    if counter == 0:
+        print("malygno")
+        x = threading.Thread(target=sendImg)
+        x.start()
+        counter = 1
     # le-se os sensores:
     right_ir_val = right_ir.getValue()
     mid_ir_val = mid_ir.getValue()
