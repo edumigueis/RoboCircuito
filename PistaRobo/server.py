@@ -1,21 +1,19 @@
-from flask import Flask, request, Response, render_template, session
+from flask import Flask, request, Response, render_template, session, redirect
 
-# Initialize the Flask application
 app = Flask(__name__)
 
-# route http posts to this method
-
-@app.route('/api/img')
-def ret():
-    session['image'] = 'https://images.pexels.com/photos/2693212/pexels-photo-2693212.png?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940'
-    return render_template("index.html", image = session.get('image', None))
+@app.route('/api/img/<i>', methods=['GET'])
+def img(i):
+    if i == None:
+        return render_template("index.html", image = "https://images.pexels.com/photos/2693212/pexels-photo-2693212.png?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940")
+    else:
+        return render_template("index.html", image = i)
 
 @app.route('/api/img', methods=['POST'])
-def img():
+def img_post():
     r = request.get_json()["img"]
     print(r);
-    return render_template("index.html", image = r)
-
+    return redirect(f"/api/img/{r}")
 
 # start flask app
 app.run(host="localhost", port=5000)
